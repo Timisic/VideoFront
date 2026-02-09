@@ -1,0 +1,8 @@
+# Docker 相关文件
+*.tar
+*.tar.gz
+
+# 环境变量
+.env
+.env.local
+.env.production

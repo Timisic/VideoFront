@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  psychological-assessment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: psychological-assessment
+    ports:
+      - "20053:20053"
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      - TZ=Asia/Shanghai
+    # 如果需要访问宿主机网络上的后端服务
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:20053/" ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+networks:
+  app-network:
+    driver: bridge
