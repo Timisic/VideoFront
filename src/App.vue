@@ -64,16 +64,44 @@ async function handleRecorded(videoBlob) {
     // 直接上传录制的视频（MP4 或 WebM）
     const response = await uploadVideo(videoBlob)
     
+    console.log('🔍 检查后端响应...')
+    console.log('  - response.code:', response.code)
+    console.log('  - response.msg:', response.msg)
+    
     if (response.code === 0) {
       reportData.value = response.data
       currentStep.value = 'report'
       console.log('✅ 视频上传和分析成功')
     } else {
-      throw new Error(response.msg || '分析失败')
+      const errorMsg = response.msg || '分析失败'
+      console.error('⚠️ 后端返回错误码:', response.code, '消息:', errorMsg)
+      throw new Error(errorMsg)
     }
   } catch (error) {
-    console.error('❌ 上传或分析失败:', error)
-    errorMessage.value = error.message || '上传或分析失败,请重试'
+    console.error('❌ 上传或分析失败:')
+    console.error('  - 错误对象:', error)
+    
+    // 尝试从错误中提取更详细的信息
+    let errorMsg = '上传或分析失败,请重试'
+    
+    if (error.response?.data) {
+      // Axios 错误，有后端响应
+      const backendError = error.response.data
+      if (typeof backendError === 'string') {
+        errorMsg = backendError
+      } else if (backendError.msg) {
+        errorMsg = backendError.msg
+      } else if (backendError.message) {
+        errorMsg = backendError.message
+      } else {
+        errorMsg = `后端错误 (${error.response.status}): ${JSON.stringify(backendError)}`
+      }
+    } else if (error.message) {
+      errorMsg = error.message
+    }
+    
+    console.error('  - 显示给用户的错误:', errorMsg)
+    errorMessage.value = errorMsg
     currentStep.value = 'error'
   } finally {
     // Stop camera stream
