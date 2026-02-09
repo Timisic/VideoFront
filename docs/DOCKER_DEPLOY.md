@@ -16,6 +16,74 @@ docker-compose --version
 
 ---
 
+## ⚠️ 重要: Docker 权限问题解决
+
+### 错误信息
+
+如果遇到以下错误:
+```
+PermissionError(13, 'Permission denied')
+docker.errors.DockerException: Error while fetching server API version
+```
+
+### 原因
+
+当前用户没有权限访问 Docker daemon。
+
+### 解决方法
+
+#### 方法 1: 将用户添加到 docker 组 (推荐)
+
+```bash
+# 1. 将当前用户添加到 docker 组
+sudo usermod -aG docker $USER
+
+# 2. 刷新组权限 (或重新登录)
+newgrp docker
+
+# 3. 验证权限
+docker ps
+```
+
+**注意**: 如果 `newgrp docker` 不生效,需要完全退出并重新登录:
+
+```bash
+# 退出当前会话
+exit
+
+# 重新 SSH 登录
+ssh user@server
+```
+
+#### 方法 2: 使用 sudo (临时方案)
+
+```bash
+# 使用 sudo 运行 docker 命令
+sudo docker-compose up -d --build
+
+# 或
+sudo docker ps
+```
+
+**不推荐长期使用 sudo**,建议使用方法 1。
+
+#### 方法 3: 修改 Docker socket 权限 (不推荐,有安全风险)
+
+```bash
+# 仅用于测试环境
+sudo chmod 666 /var/run/docker.sock
+```
+
+### 验证权限配置
+
+```bash
+# 应该能正常运行,不需要 sudo
+docker ps
+docker-compose --version
+```
+
+---
+
 ## 🚀 方法一: 使用 Docker Compose (推荐)
 
 ### 1. 构建并启动

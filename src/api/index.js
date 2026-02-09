@@ -2,7 +2,7 @@ import axios from 'axios'
 import { MOCK_REPORT_DATA } from './mockData'
 
 // Set to true to use mock data (for testing without backend)
-const USE_MOCK = true
+const USE_MOCK = false
 
 const api = axios.create({
   baseURL: '/api',
