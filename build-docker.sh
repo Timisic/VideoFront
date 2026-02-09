@@ -21,7 +21,7 @@ cd ..
 
 # 2. 本地构建镜像（使用 HTTPS Dockerfile）
 echo "📦 步骤 2/4: 本地构建 Docker 镜像（AMD64 架构）..."
-docker buildx build --platform linux/amd64 -f Dockerfile.https -t ${IMAGE_NAME}:${IMAGE_TAG} .
+docker buildx build --platform linux/amd64 -f Dockerfile -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
 # 3. 保存镜像为 tar 文件
 echo "💾 步骤 3/4: 保存镜像为文件..."

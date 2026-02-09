@@ -30,7 +30,6 @@ import UploadLoading from './components/UploadLoading.vue'
 import ReportView from './components/ReportView.vue'
 import ErrorRetry from './components/ErrorRetry.vue'
 import { uploadVideo } from './api'
-import { convertToMp4 } from './utils/convertToMp4'
 
 const currentStep = ref('guide')
 const cameraStream = ref(null)
@@ -56,24 +55,24 @@ function handleCountdownDone() {
   currentStep.value = 'recording'
 }
 
-async function handleRecorded(webmBlob) {
+async function handleRecorded(videoBlob) {
   currentStep.value = 'uploading'
   
   try {
-    // Convert webm to mp4
-    const mp4Blob = await convertToMp4(webmBlob)
+    console.log('📤 开始上传视频，格式:', videoBlob.type, '大小:', (videoBlob.size / 1024 / 1024).toFixed(2), 'MB')
     
-    // Upload video
-    const response = await uploadVideo(mp4Blob)
+    // 直接上传录制的视频（MP4 或 WebM）
+    const response = await uploadVideo(videoBlob)
     
     if (response.code === 0) {
       reportData.value = response.data
       currentStep.value = 'report'
+      console.log('✅ 视频上传和分析成功')
     } else {
       throw new Error(response.msg || '分析失败')
     }
   } catch (error) {
-    console.error('Upload or processing failed:', error)
+    console.error('❌ 上传或分析失败:', error)
     errorMessage.value = error.message || '上传或分析失败,请重试'
     currentStep.value = 'error'
   } finally {

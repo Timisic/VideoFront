@@ -67,8 +67,30 @@ onUnmounted(() => {
 
 function startRecording() {
   try {
+    // 检测浏览器支持的视频格式，优先使用 MP4
+    const mimeTypes = [
+      'video/mp4',
+      'video/mp4;codecs=h264',
+      'video/webm;codecs=h264',
+      'video/webm;codecs=vp9',
+      'video/webm'
+    ]
+    
+    let selectedMimeType = 'video/webm' // 默认降级方案
+    for (const mimeType of mimeTypes) {
+      if (MediaRecorder.isTypeSupported(mimeType)) {
+        selectedMimeType = mimeType
+        console.log('✅ 选择录制格式:', mimeType)
+        break
+      }
+    }
+    
+    if (selectedMimeType === 'video/webm') {
+      console.warn('⚠️ 浏览器不支持 MP4 录制，使用 WebM 格式')
+    }
+    
     mediaRecorder = new MediaRecorder(props.stream, {
-      mimeType: 'video/webm;codecs=vp9'
+      mimeType: selectedMimeType
     })
     
     mediaRecorder.ondataavailable = (event) => {
@@ -78,7 +100,9 @@ function startRecording() {
     }
     
     mediaRecorder.onstop = () => {
-      const blob = new Blob(recordedChunks, { type: 'video/webm' })
+      // 使用实际录制的格式创建 Blob
+      const blob = new Blob(recordedChunks, { type: selectedMimeType })
+      console.log('📹 录制完成，格式:', selectedMimeType, '大小:', (blob.size / 1024 / 1024).toFixed(2), 'MB')
       emit('recorded', blob)
     }
     
@@ -92,7 +116,7 @@ function startRecording() {
     }, 100)
     
   } catch (error) {
-    console.error('Failed to start recording:', error)
+    console.error('❌ 录制启动失败:', error)
   }
 }
 
