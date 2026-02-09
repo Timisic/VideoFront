@@ -21,9 +21,9 @@
         type="danger" 
         size="large" 
         @click="handleStop"
-        :disabled="recordedTime < 3"
+        :disabled="recordedTime < 15"
       >
-        {{ recordedTime < 3 ? `请至少录制 ${3 - recordedTime} 秒` : '停止录制并上传' }}
+        {{ recordedTime < 15 ? `请至少录制 ${15 - recordedTime} 秒` : '停止录制并上传' }}
       </el-button>
     </div>
   </div>

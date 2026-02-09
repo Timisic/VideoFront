@@ -59,10 +59,16 @@ export async function uploadVideo(videoBlob) {
     console.log('  - Response msg:', data.msg)
     console.log('  - Response data:', data.data ? '✅ 有数据' : '❌ 无数据')
     
+    // 输出完整的后端响应数据
+    console.log('📦 完整后端响应:')
+    console.log(JSON.stringify(data, null, 2))
+    
     if (data.data) {
       console.log('📊 分析结果预览:')
       console.log('  - 数据类型:', typeof data.data)
       console.log('  - 数据键:', Object.keys(data.data))
+      console.log('📋 完整分析结果数据:')
+      console.log(JSON.stringify(data.data, null, 2))
     }
     
     return data
