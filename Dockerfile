@@ -27,12 +27,15 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # 复制 Nginx 配置
 COPY nginx-docker.conf /etc/nginx/conf.d/default.conf
 
-# 暴露端口
-EXPOSE 20053
+# 创建 SSL 目录（证书将通过 volume 挂载）
+RUN mkdir -p /etc/nginx/ssl
 
-# 健康检查
+# 暴露端口（HTTP 和 HTTPS）
+EXPOSE 20053 20443
+
+# 健康检查（使用 HTTPS）
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:20053/ || exit 1
+  CMD wget --no-check-certificate --quiet --tries=1 --spider https://localhost:20443/ || exit 1
 
 # 启动 Nginx
 CMD ["nginx", "-g", "daemon off;"]
