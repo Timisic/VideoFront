@@ -16,12 +16,15 @@
     </div>
     
     <div class="progress-bar">
-      <el-progress 
-        :percentage="progress" 
-        :show-text="false"
-        :stroke-width="8"
-      />
-      <div class="time-remaining">剩余 {{ remainingTime }} 秒</div>
+      <div class="time-display">已录制 {{ recordedTime }} 秒</div>
+      <el-button 
+        type="danger" 
+        size="large" 
+        @click="handleStop"
+        :disabled="recordedTime < 3"
+      >
+        {{ recordedTime < 3 ? `请至少录制 ${3 - recordedTime} 秒` : '停止录制并上传' }}
+      </el-button>
     </div>
   </div>
 </template>
@@ -36,15 +39,13 @@ const props = defineProps({
 
 const emit = defineEmits(['recorded'])
 
-const RECORDING_DURATION = 40000 // 40 seconds
 const videoElement = ref(null)
-const progress = ref(0)
-const remainingTime = ref(40)
+const recordedTime = ref(0)
 const materialText = ref(MATERIAL_TEXT)
 
 let mediaRecorder = null
 let recordedChunks = []
-let progressTimer = null
+let timeUpdateTimer = null
 let startTime = null
 
 onMounted(() => {
@@ -56,8 +57,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (progressTimer) {
-    clearInterval(progressTimer)
+  if (timeUpdateTimer) {
+    clearInterval(timeUpdateTimer)
   }
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     mediaRecorder.stop()
@@ -84,21 +85,23 @@ function startRecording() {
     mediaRecorder.start()
     startTime = Date.now()
     
-    // Update progress
-    progressTimer = setInterval(() => {
+    // Update time display
+    timeUpdateTimer = setInterval(() => {
       const elapsed = Date.now() - startTime
-      const progressPercent = Math.min((elapsed / RECORDING_DURATION) * 100, 100)
-      progress.value = progressPercent
-      remainingTime.value = Math.max(0, Math.ceil((RECORDING_DURATION - elapsed) / 1000))
-      
-      if (elapsed >= RECORDING_DURATION) {
-        clearInterval(progressTimer)
-        mediaRecorder.stop()
-      }
+      recordedTime.value = Math.floor(elapsed / 1000)
     }, 100)
     
   } catch (error) {
     console.error('Failed to start recording:', error)
+  }
+}
+
+function handleStop() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    if (timeUpdateTimer) {
+      clearInterval(timeUpdateTimer)
+    }
+    mediaRecorder.stop()
   }
 }
 </script>
@@ -186,13 +189,16 @@ function startRecording() {
 .progress-bar {
   padding: 20px 40px;
   background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
 }
 
-.time-remaining {
-  text-align: center;
-  margin-top: 12px;
-  font-size: 16px;
+.time-display {
+  font-size: 18px;
   font-weight: 600;
   color: #409eff;
+  min-width: 120px;
 }
 </style>
