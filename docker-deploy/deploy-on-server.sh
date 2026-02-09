@@ -3,10 +3,15 @@
 
 set -e
 
+# 自动切换到脚本所在目录
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
 IMAGE_NAME="psychological-assessment"
 IMAGE_TAG="latest"
 
 echo "🚀 开始部署 Docker 容器..."
+echo "📂 工作目录: $SCRIPT_DIR"
 
 # 1. 解压镜像
 echo "📦 步骤 1/5: 解压镜像文件..."
