@@ -12,9 +12,24 @@
         </div>
       </div>
       
+      <!-- 抑郁自评单独展示 -->
+      <div v-if="depressionData" class="depression-section">
+        <div class="depression-card">
+          <div class="depression-header">
+            <h3>{{ depressionData.dimension_name }}</h3>
+            <div class="depression-score">
+              <span class="score-value">{{ (depressionData.score * 100).toFixed(0) }}</span>
+              <span class="score-label">分</span>
+            </div>
+          </div>
+          <div class="depression-result">{{ depressionData.result }}</div>
+          <div class="depression-interpretation">{{ depressionData.interpretation }}</div>
+        </div>
+      </div>
+      
       <div class="dimensions-section">
         <div 
-          v-for="(dimension, key) in data" 
+          v-for="(dimension, key) in bigFiveDimensions" 
           :key="key"
           class="dimension-card"
         >
@@ -43,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import { exportPdf } from '../utils/exportPdf'
 
@@ -57,6 +72,16 @@ const props = defineProps({
 const emit = defineEmits(['retry'])
 const radarChart = ref(null)
 
+// 分离大五人格和抑郁自评
+const bigFiveDimensions = computed(() => {
+  const { face_yyzp, ...bigFive } = props.data
+  return bigFive
+})
+
+const depressionData = computed(() => {
+  return props.data.face_yyzp || null
+})
+
 onMounted(async () => {
   await nextTick()
   initRadarChart()
@@ -67,7 +92,8 @@ function initRadarChart() {
   
   const chart = echarts.init(radarChart.value)
   
-  const dimensions = Object.values(props.data)
+  // 只使用大五人格维度绘制雷达图
+  const dimensions = Object.values(bigFiveDimensions.value)
   const indicator = dimensions.map(d => ({
     name: d.dimension_name,
     max: 100
@@ -177,6 +203,51 @@ function handleRetry() {
 .chart {
   width: 600px;
   height: 500px;
+}
+
+.depression-section {
+  margin-bottom: 40px;
+  padding: 0 20px;
+}
+
+.depression-card {
+  padding: 24px;
+  background: #fff9e6;
+  border-radius: 8px;
+  border: 2px solid #e6a23c;
+  border-left: 6px solid #e6a23c;
+}
+
+.depression-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.depression-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.depression-score {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.depression-result {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e6a23c;
+  margin-bottom: 12px;
+}
+
+.depression-interpretation {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #606266;
 }
 
 .dimensions-section {
