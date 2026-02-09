@@ -4,35 +4,28 @@ import { fetchFile, toBlobURL } from '@ffmpeg/util'
 let ffmpeg = null
 let loaded = false
 
-// 多个 CDN 源作为备选
-const CDN_SOURCES = [
-  'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd',
-  'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd'
-]
-
 async function loadFFmpeg() {
   if (loaded) return
   
   ffmpeg = new FFmpeg()
   
-  // 尝试从多个 CDN 源加载
-  for (const baseURL of CDN_SOURCES) {
-    try {
-      console.log(`尝试从 ${baseURL} 加载 FFmpeg...`)
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
-      })
-      console.log('FFmpeg 加载成功')
-      loaded = true
-      return
-    } catch (error) {
-      console.warn(`从 ${baseURL} 加载失败:`, error.message)
-      // 继续尝试下一个源
-    }
+  try {
+    console.log('从本地加载 FFmpeg...')
+    
+    // 使用本地打包的 FFmpeg 核心文件
+    const baseURL = window.location.origin + '/ffmpeg'
+    
+    await ffmpeg.load({
+      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
+    })
+    
+    console.log('FFmpeg 加载成功')
+    loaded = true
+  } catch (error) {
+    console.error('FFmpeg 加载失败:', error)
+    throw new Error('FFmpeg 加载失败: ' + error.message)
   }
-  
-  throw new Error('所有 CDN 源均加载失败')
 }
 
 export async function convertToMp4(webmBlob) {
