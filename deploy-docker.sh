@@ -50,7 +50,7 @@ ssh ${SERVER} << EOF
   # 运行新容器
   echo "启动新容器..."
   docker run -d \
-    --name ${IMAGE_NAME} \
+    --name psychological-assessment \
     -p 20053:20053 \
     --restart unless-stopped \
     --add-host host.docker.internal:host-gateway \
