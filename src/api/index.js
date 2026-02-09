@@ -36,10 +36,15 @@ export async function uploadVideo(videoBlob) {
   // 后端 API 期望字段名为 'file' (参考 docs/test_request.py)
   formData.append('file', videoBlob, fileName)
   
+  // 添加分析维度参数 (参考 docs/test_request.py 第 27 行)
+  const dimensions = ["BIG_A", "BIG_C", "BIG_E", "BIG_N", "BIG_O", "face_yyzp"]
+  formData.append('dimensions', JSON.stringify(dimensions))
+  
   console.log('📤 上传文件信息:')
   console.log('  - 字段名: file')
   console.log('  - 文件名:', fileName)
   console.log('  - Content-Type:', videoBlob.type)
+  console.log('  - 分析维度:', dimensions)
   console.log('  - 目标 URL: /api/v1/analysis/face_video')
   
   try {
