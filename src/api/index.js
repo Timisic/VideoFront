@@ -33,9 +33,11 @@ export async function uploadVideo(videoBlob) {
   const fileExtension = videoBlob.type.includes('mp4') ? 'mp4' : 'webm'
   const fileName = `recording.${fileExtension}`
   
-  formData.append('video', videoBlob, fileName)
+  // 后端 API 期望字段名为 'file' (参考 docs/test_request.py)
+  formData.append('file', videoBlob, fileName)
   
   console.log('📤 上传文件信息:')
+  console.log('  - 字段名: file')
   console.log('  - 文件名:', fileName)
   console.log('  - Content-Type:', videoBlob.type)
   console.log('  - 目标 URL: /api/v1/analysis/face_video')
