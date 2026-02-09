@@ -6,10 +6,10 @@ set -e
 echo "🚀 开始构建并部署 Docker 镜像到服务器..."
 
 # 配置 (请根据实际情况修改)
-SERVER="user@159.226.113.201"
+SERVER="ubuntu@192.168.8.167"
 IMAGE_NAME="psychological-assessment"
 IMAGE_TAG="latest"
-REMOTE_PATH="/home/user"
+REMOTE_PATH="/home/ubuntu/hwj/"
 
 # 1. 本地构建镜像
 echo "📦 步骤 1/5: 本地构建 Docker 镜像..."
